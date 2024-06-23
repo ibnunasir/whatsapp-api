@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Toyyibpay {
+class Toyyibpay
+{
     const DEV_URL = 'https://dev.toyyibpay.com';
     const PROD_URL = 'https://toyyibpay.com';
 
@@ -12,8 +13,7 @@ class Toyyibpay {
 
     public function __construct($params)
     {
-        $this->CI =& get_instance();
-        $this->CI->load->library('curl');
+        $this->CI = &get_instance();
 
         $this->baseUrl = $params['sandbox'] ? self::DEV_URL : self::PROD_URL;
         $this->userSecretKey = $params['userSecretKey'];
@@ -26,7 +26,7 @@ class Toyyibpay {
         $data['categoryCode'] = $this->categoryCode;
 
         $url = $this->baseUrl . '/index.php/api/createBill';
-        $response = $this->CI->curl->simple_post($url, $data);
+        $response = $this->curlPost($url, $data);
 
         return json_decode($response, true);
     }
@@ -39,7 +39,7 @@ class Toyyibpay {
         ];
 
         $url = $this->baseUrl . '/index.php/api/getBillTransactions';
-        $response = $this->CI->curl->simple_post($url, $data);
+        $response = $this->curlPost($url, $data);
 
         return json_decode($response, true);
     }
@@ -64,12 +64,25 @@ class Toyyibpay {
 
         $transaction = $transactions[0];
 
-        if ($transaction['billpaymentStatus'] == $paymentStatus &&
+        if (
+            $transaction['billpaymentStatus'] == $paymentStatus &&
             $transaction['billpaymentAmount'] == $paymentAmount &&
-            $transaction['billpaymentInvoiceNo'] == $referenceNo) {
+            $transaction['billpaymentInvoiceNo'] == $referenceNo
+        ) {
             return true;
         }
 
         return false;
+    }
+    private function curlPost($url, $data)
+    {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
     }
 }

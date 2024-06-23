@@ -4,6 +4,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Order extends CI_Controller
 {
 
+    public function __construct() {
+        parent::__construct();
+        $this->load->helper('url');
+        $this->load->library('session');
+        $this->load->helper('form');
+        // $this->load->library('form_validation');
+    }
+
     public function index()
     {
         $this->load->view('main');
@@ -61,8 +69,8 @@ class Order extends CI_Controller
                 'billPriceSetting' => 1,
                 'billPayorInfo' => 1,
                 'billAmount' => $amount * 100, // ToyyibPay expects amount in cents
-                'billReturnUrl' => base_url('order/success'),
-                'billCallbackUrl' => base_url('order/callback'),
+                'billReturnUrl' => base_url('Order/success'),
+                'billCallbackUrl' => base_url('Order/callback'),
                 'billExternalReferenceNo' => $order_id,
                 'billTo' => $order_data['name'],
                 'billEmail' => $order_data['email'],
